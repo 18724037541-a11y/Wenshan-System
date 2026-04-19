@@ -35,11 +35,25 @@ st.markdown("""<style>
     [data-testid="stMetricValue"] { font-weight: 700; font-size: 36px; background: linear-gradient(135deg, #0071e3, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 </style>""", unsafe_allow_html=True)
 
-# 🔐 从 Streamlit 云端保险箱安全读取 API KEY
+# ！！！请填入你的 API KEY ！！！
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"]) 
-# 替换为这段“会说人话”的诊断代码：
-# 🚀 彻底抛弃自动寻找逻辑，直接强制绑定最稳定、额度最大的 1.5 Flash 模型！
-model = genai.GenerativeModel('gemini-1.5-flash')
+
+# 🚀 终极智能寻路逻辑：自动匹配账号模型，且精准避开报错模型
+try:
+    # 1. 获取你账号下所有支持生成内容的模型
+    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    
+    # 2. 🛑 核心过滤：坚决排除掉那个会报 400 错误的 robotics 模型
+    safe_models = [m for m in available_models if 'robotics' not in m]
+    
+    # 3. 按优先级寻找能看图的最强模型 (1.5-flash -> 1.5-pro -> vision)
+    best_model_name = next((m for keyword in ['1.5-flash', '1.5-pro', 'vision', 'pro'] for m in safe_models if keyword in m), safe_models[-1] if safe_models else 'gemini-1.5-flash-latest').replace('models/', '')
+    
+    model = genai.GenerativeModel(best_model_name)
+    
+except Exception as e:
+    model = None
+    st.error(f"🚨 AI 引擎初始化失败！具体原因：{str(e)}")
 
 # ==========================================
 # ⚙️ 数据库与云端永生备份引擎 (核心科技)
