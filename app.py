@@ -41,10 +41,6 @@ genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 # 🚀 彻底抛弃自动寻找逻辑，直接强制绑定最稳定、额度最大的 1.5 Flash 模型！
 model = genai.GenerativeModel('gemini-1.5-flash')
 
-    st.error(f"🚨 AI 引擎初始化失败！具体原因：{str(e)}")
-    st.info("请检查 API Key 是否填写正确，或检查运行环境的网络是否能连接 Google 服务。")
-
-
 # ==========================================
 # ⚙️ 数据库与云端永生备份引擎 (核心科技)
 # ==========================================
