@@ -38,22 +38,32 @@ st.markdown("""<style>
 # ！！！请填入你的 API KEY ！！！
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"]) 
 
-# 🚀 终极锁死逻辑：只抓取免费额度巨大的 1.5-flash，绝对不碰 2.5 或 Pro！
+# 🚀 终极自适应雷达：不再死磕版本号，有啥用啥！
 try:
-    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    # 1. 获取你账号里所有支持生成的模型名字
+    available = [m.name.replace('models/', '') for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
     
-    # 核心过滤：在账号所有模型中，只找名字里确切包含 '1.5-flash' 的模型
-    flash_models = [m for m in available_models if '1.5-flash' in m]
+    # 2. 排除掉容易报错的机器人 (robotics) 和免费额度为0的贵族模型 (pro)
+    safe_models = [m for m in available if 'robotics' not in m and 'pro' not in m]
     
-    # 获取匹配到的 flash 模型名字（去掉 'models/' 前缀），如果找不到就硬编码保底
-    best_model_name = flash_models[0].replace('models/', '') if flash_models else 'gemini-1.5-flash-latest'
+    # 3. 优先选择名字里带 'flash' 的平民模型（无论是 2.0 还是 2.5 还是最新版）
+    flash_models = [m for m in safe_models if 'flash' in m]
     
+    # 4. 智能分配
+    if flash_models:
+        best_model_name = flash_models[0]
+    elif safe_models:
+        best_model_name = safe_models[0]
+    else:
+        best_model_name = available[0]
+        
     model = genai.GenerativeModel(best_model_name)
     
 except Exception as e:
     model = None
-    st.error(f"🚨 AI 引擎初始化失败！具体原因：{str(e)}")
-
+    st.error(f"🚨 AI 引擎初始化失败！报错信息：{str(e)}")
+    # 这行是绝杀：如果还报错，直接把你账号里的底牌亮在网页上！
+    st.info(f"💡 你的账号实际支持的模型列表为：{available if 'available' in locals() else '无法获取'}")
 
 # ==========================================
 # ⚙️ 数据库与云端永生备份引擎 (核心科技)
