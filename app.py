@@ -38,22 +38,22 @@ st.markdown("""<style>
 # ！！！请填入你的 API KEY ！！！
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"]) 
 
-# 🚀 终极智能寻路逻辑：自动匹配账号模型，且精准避开报错模型
+# 🚀 终极锁死逻辑：只抓取免费额度巨大的 1.5-flash，绝对不碰 2.5 或 Pro！
 try:
-    # 1. 获取你账号下所有支持生成内容的模型
     available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
     
-    # 2. 🛑 核心过滤：坚决排除掉那个会报 400 错误的 robotics 模型
-    safe_models = [m for m in available_models if 'robotics' not in m]
+    # 核心过滤：在账号所有模型中，只找名字里确切包含 '1.5-flash' 的模型
+    flash_models = [m for m in available_models if '1.5-flash' in m]
     
-    # 3. 按优先级寻找能看图的最强模型 (1.5-flash -> 1.5-pro -> vision)
-    best_model_name = next((m for keyword in ['1.5-flash', '1.5-pro', 'vision', 'pro'] for m in safe_models if keyword in m), safe_models[-1] if safe_models else 'gemini-1.5-flash-latest').replace('models/', '')
+    # 获取匹配到的 flash 模型名字（去掉 'models/' 前缀），如果找不到就硬编码保底
+    best_model_name = flash_models[0].replace('models/', '') if flash_models else 'gemini-1.5-flash-latest'
     
     model = genai.GenerativeModel(best_model_name)
     
 except Exception as e:
     model = None
     st.error(f"🚨 AI 引擎初始化失败！具体原因：{str(e)}")
+
 
 # ==========================================
 # ⚙️ 数据库与云端永生备份引擎 (核心科技)
