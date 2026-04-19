@@ -35,8 +35,8 @@ st.markdown("""<style>
     [data-testid="stMetricValue"] { font-weight: 700; font-size: 36px; background: linear-gradient(135deg, #0071e3, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 </style>""", unsafe_allow_html=True)
 
-# ！！！请填入你的 API KEY ！！！
-genai.configure(api_key="AIzaSyCOf5Reqtr9idAGxMjhAtbuYVXzVEIHlAE") 
+# 🔐 从 Streamlit 云端保险箱安全读取 API KEY
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"]) 
 # 替换为这段“会说人话”的诊断代码：
 try:
     available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
