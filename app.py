@@ -38,12 +38,9 @@ st.markdown("""<style>
 # 🔐 从 Streamlit 云端保险箱安全读取 API KEY
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"]) 
 # 替换为这段“会说人话”的诊断代码：
-try:
-    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-    best_model_name = next((m for keyword in ['1.5-flash', '1.5-pro'] for m in available_models if keyword in m), available_models[-1]).replace('models/', '')
-    model = genai.GenerativeModel(best_model_name)
-except Exception as e:
-    model = None
+# 🚀 彻底抛弃自动寻找逻辑，直接强制绑定最稳定、额度最大的 1.5 Flash 模型！
+model = genai.GenerativeModel('gemini-1.5-flash')
+
     st.error(f"🚨 AI 引擎初始化失败！具体原因：{str(e)}")
     st.info("请检查 API Key 是否填写正确，或检查运行环境的网络是否能连接 Google 服务。")
 
